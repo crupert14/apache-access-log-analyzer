@@ -1,7 +1,6 @@
 import shlex
 import re
 from datetime import datetime
-import numpy
 
 '''
 Completed:

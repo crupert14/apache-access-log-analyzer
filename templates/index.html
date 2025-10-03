@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apache Access Log Analyzer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav>
+        <h1>Apache Acess Log Analyzer</h1>
+    </nav>
+
+    <main>
+        <section id="sidebar">
+            <ul>
+                <li id="list-header">Selection Results</li>
+                <li>IP Address by Appearence</li>
+                <li>HTTP Code by IP Address</li>
+                <li>Unique IP Addresses</li>
+                <li>HTTP Code by Appearence</li>
+                <li>URL by Appearence</li>
+            </ul>
+        </section>
+
+        <section id="central">
+            <div class="main-display"></div>
+        </section>
+    </main>
+    <!-- <table>
+        <tbody>
+            <thead>
+                <th>IP</th>
+                <th>Appearances</th>
+            </thead>
+            {% for arr in ip_addr_app_count %}
+            <tr>
+                <td>{{arr[0]}}</td>
+                <td>{{arr[1]}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table> -->
+    
+     <script src="{{ url_for('static', filename='script.js')}}"></script>
+</body>
+</html>

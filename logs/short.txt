@@ -1,0 +1,12 @@
+192.168.1.10 - - [21/May/2025:14:23:01 -0400] "GET /index.html HTTP/1.1" 200 1043
+172.16.0.2 - - [21/May/2025:14:23:45 -0400] "POST /login HTTP/1.1" 302 507
+10.0.0.4 - - [21/May/2025:14:24:10 -0400] "GET /dashboard HTTP/1.1" 200 2048
+192.168.1.10 - - [21/May/2025:14:25:16 -0400] "GET /nonexistent.html HTTP/1.1" 404 326
+172.16.0.2 - - [21/May/2025:14:26:01 -0400] "GET /settings HTTP/1.1" 500 876
+10.0.0.4 - - [21/May/2025:14:27:33 -0400] "GET /help HTTP/1.1" 200 512
+192.168.1.10 - - [21/May/2025:14:28:50 -0400] "POST /upload HTTP/1.1" 201 1587
+[warn] [client 192.168.1.10] mod_fcgid: read data timeout in 31 seconds
+[error] [client 172.16.0.2] File does not exist: /var/www/favicon.ico
+Log rotation started at 21/May/2025:14:29:00
+--- End of access log rotation ---
+System rebooted unexpectedly at 14:30 due to power failure

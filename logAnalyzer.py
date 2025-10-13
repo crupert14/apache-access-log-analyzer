@@ -119,3 +119,4 @@ ip_addr_app_count = sorted(ip_addr_app_count, key=lambda row: row[1], reverse=Tr
 
 print(ip_addr_app_count)
 print(ip_addr_codes_count)
+print("testing")

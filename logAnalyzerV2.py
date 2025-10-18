@@ -1,12 +1,8 @@
-# fileLocation = input("Enter file path: ")
-# fileFormatInput = input("Enter format (comma separated): ")
-# logFile = open(fileLocation, 'r')
-# fileFormat = fileFormatInput.split(" ")
-
-import shlex
-import re
-from datetime import datetime
-
+'''
+Log Formats:
+Common - %h %l %u %t \"%r\" %>s %b 
+Combined - %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"
+'''
 '''
 Completed:
 - Total requests -> requests
@@ -19,6 +15,8 @@ Completed:
 - Implement total time of log -> total_time
 - Implement request count by appearence -> request_urls
 '''
+import re
+from datetime import datetime
 
 ip_addr_app_count = [] # [IP Address, Appearence Count]
 ip_addr_codes_count = [] # [IP Address, HTTP Code Number, Code Appearence Number]
@@ -43,9 +41,42 @@ existingCodes = [
     # 5xx Server Error
     500, 501, 502, 503, 504, 505, 506, 507, 508, 509, 510, 511, 520, 521, 522, 523, 524, 525, 526, 527, 528, 529, 530, 532, 533, 535, 537, 538, 539, 540, 541, 542, 543, 544, 545, 546, 547, 548, 549, 550, 551, 552, 553, 554, 555, 556, 557, 558, 559, 598, 599
 ]
+CLF_pattern = re.compile(
+    r'(?P<ip>\S+) '                # %h: Remote host
+    r'(?P<ident>\S+) '             # %l: RFC 1413 identity
+    r'(?P<user>\S+) '              # %u: Authenticated user
+    r'\[(?P<time>[^\]]+)\] '       # %t: Time
+    r'"(?P<request>[^"]*)" '       # %r: Request line
+    r'(?P<status>\d{3}) '          # %>s: Status code
+    r'(?P<size>\S+)'               # %b: Response size
+)
+CombLF_pattern = re.compile(
+    r'(?P<ip>\S+) '                # %h: Remote host
+    r'(?P<ident>\S+) '             # %l: RFC 1413 identity
+    r'(?P<user>\S+) '              # %u: Authenticated user
+    r'\[(?P<time>[^\]]+)\] '       # %t: Time
+    r'"(?P<request>[^"]*)" '       # %r: Request line
+    r'(?P<status>\d{3}) '          # %>s: Status code
+    r'(?P<size>\S+) '              # %b: Response size
+    r'"(?P<referer>[^"]*)" '       # "%{Referer}i": Referring page
+    r'"(?P<agent>[^"]*)"'          # "%{User-agent}i": User agent string
+)
 
-logFile = open("logs/real.log")
-logFormat = "Common" #Common - %h %l %u %t \"%r\" %>s %b | Combined - %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"
+def parse_CLF(line):
+    match = CLF_pattern.match(line)
+    if not match:
+        return None
+    
+    data = match.groupdict()
+    
+    # Clean and convert
+    data["size"] = int(data["size"]) if data["size"].isdigit() else 0
+    try:
+        data["time"] = datetime.strptime(data["time"], "%d/%b/%Y:%H:%M:%S %z")
+    except ValueError:
+        data["time"] = None
+    
+    return data
 
 def increment_counter(arr, *keys):
     if not arr:
@@ -59,41 +90,15 @@ def increment_counter(arr, *keys):
 
     arr.append([*keys, 1])
 
-"""
-Ex:
-increment_counter(code_counts, "200")
-increment_counter(ip_addr_app_count, "192.168.0.1")
-increment_counter(ip_addr_codes_count, "192.168.0.1", "404")
-"""
+logFile = "logs/real.log"
+logFormat = "Common" 
 
-for line in logFile:
-    # tokens = shlex.split(line)
-    # for token in tokens:
-    #     found = False
-    #     for str in request_string:
-    #         if str in token:
-    #             req_url = token.split(" ")
-    #             found = True
-    #             break
-    #         if found:
-    #             break
+with open(logFile) as file:
+    for line in file:
+        #Skip malformed request lines
+        entry = parse_CLF(line)
+        if not entry:
+            continue
 
-    """
-    %h → Client IP
-    %l → RFC 1413 identity (almost always -)
-    %u → Authenticated username (if any)
-    %t → Time of request
-    %r → Request line ("GET /index.html HTTP/1.1")
-    %>s → Response status code
-    %b → Response size in bytes
-    """
-
-    client_ip = line[0:line.index(" ")] # %h
-    # rfc_and_user = line[line.index(" "):line.index("[")].strip().split(" ") #RFC id and user combined
-    rfc_id = line[line.index(" "):line.index(" ", line.index(" ")+1)] # %l
-    user = line[line.index(" ", line.index(" ")+1):line.index("[")].strip() # %u
-    time_of_request = line[line.index("[")+1:line.index("]")] # %t
-    request_line = line[line.index("\"")+1:line.index("\"", line.index("\"")+1)] # %r
-    response_status_code = line[line.index("\"", line.index("\"") + 1)+2:line.index(" ", line.index("\"", line.index("\"") + 1)+2)] # %>s
-    response_size_bytes = line[line.index(" ", line.index("\"", line.index("\"") + 1)+2):]
-    print(response_size_bytes)
+        requests += 1
+        print(entry)

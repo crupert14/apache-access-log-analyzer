@@ -3,18 +3,6 @@ Log Formats:
 Common - %h %l %u %t \"%r\" %>s %b 
 Combined - %h %l %u %t \"%r\" %>s %b \"%{Referer}i\" \"%{User-agent}i\"
 '''
-'''
-Completed:
-- Total requests -> requests
-- Unique IP List -> unique_ips_list
-- Unique IP Count -> unique_ips
-- Status Codes by IP -> ip_addr_codes_count
-- Appearence of each code -> code_counts
-- Implement status code count -> code_counts
-- Implement request count by IP -> ip_requests
-- Implement total time of log -> total_time
-- Implement request count by appearence -> request_urls
-'''
 import re
 from datetime import datetime
 
@@ -22,8 +10,9 @@ ip_addr_app_count = [] # [IP Address, Appearence Count]
 ip_addr_codes_count = [] # [IP Address, HTTP Code Number, Code Appearence Number]
 unique_ips_list = [] # [IP Address]
 code_counts = [] # [Code, Count]
-ip_requests = [] # [IP, Request Count]
-request_urls = [] # [URL, Count]
+request_urls_total = [] # [URL, Count]
+request_urls_by_method = [] # [URL, Method, Count]
+times_readable = [] # [Timestamp] (Formatted %Y-%m-%d %H:%M:%S %Z)
 times = [] # [Timestamp]
 requests = 0
 unique_ips = 0
@@ -95,10 +84,24 @@ logFormat = "Common"
 
 with open(logFile) as file:
     for line in file:
-        #Skip malformed request lines
         entry = parse_CLF(line)
+        #Skip malformed request lines
         if not entry:
             continue
 
         requests += 1
-        print(entry)
+
+        if entry['ip'] not in unique_ips_list:
+            unique_ips_list.append(entry['ip'])
+        unique_ips = len(unique_ips_list)
+
+        increment_counter(ip_addr_app_count, entry['ip'])
+        increment_counter(ip_addr_codes_count, entry['ip'], entry['status'])
+        increment_counter(code_counts, entry['status'])
+        increment_counter(request_urls_total, entry['request'])
+        increment_counter(request_urls_by_method, entry['request'], entry['request'].split()[0])
+
+        times_readable.append(entry['time'].strftime("%Y-%m-%d %H:%M:%S %Z"))
+        times.append(entry['time'])
+
+total_elapsed_time = max(times) - min(times)

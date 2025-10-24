@@ -1,4 +1,4 @@
-#!/Users/caderupert/Documents/resume/projects/pythonProjects/logAnalyzer/.venv/bin/python
+#!/Users/caderupert/Documents/projects/pythonProjects/logAnalyzer/.venv/bin/python
 # -*- coding: utf-8 -*-
 import re
 import sys
